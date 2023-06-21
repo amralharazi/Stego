@@ -1,0 +1,6 @@
+framework module Pods_Stegno {
+  umbrella header "Pods-Stegno-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -2,7 +2,7 @@
 An advanced steganographic iOS app that utilizes the robust PVD (Pixel Value Differencing) method for secure encoding and decoding of strings.
 | Encoding        | Decoding |
 | --------------- | --------------- |
-| <img src="https://github.com/amralharazi/Stegno/assets/55652499/17165769-ddfb-425b-9448-cb36771a7316" width="240"> | <img src="https://github.com/amralharazi/Stegno/assets/55652499/24ad4653-97dd-40ad-a81b-ddf5e649bbbb" width="240"> |
+| <img src="https://github.com/amralharazi/Stego/assets/55652499/a3b81c3d-04f3-477d-b642-78899fc9dc6e" width="240"> | <img src="https://github.com/amralharazi/Stego/assets/55652499/7f0c1558-7ab5-42c9-bd9b-40bd5b3a7f02" width="240"> |
 
 
 ## Algorithm

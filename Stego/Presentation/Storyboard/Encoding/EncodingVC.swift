@@ -15,6 +15,7 @@ class EncodingVC: UIViewController {
     @IBOutlet weak var shadowedView: ShadowedView!
     @IBOutlet weak var secretTextView: RoundedTextView!
     @IBOutlet weak var secretImageView: RoundedIV!
+    @IBOutlet weak var secretImageStack: UIStackView!
     
     // MARK: Properties
     private let previewController = QLPreviewController()
@@ -62,7 +63,7 @@ class EncodingVC: UIViewController {
             secretTextView.text = "Enter secret here"
             secretTextView.textColor = .lightGray
             secretTextView.delegate = self
-            secretImageView.isHidden = true
+            secretImageStack.isHidden = true
         } else {
             shadowedView.isHidden = true
         }

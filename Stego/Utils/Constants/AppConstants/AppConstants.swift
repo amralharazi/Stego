@@ -36,5 +36,5 @@ struct AppConstants {
     static let statEdgeInset: CGFloat = 10
     
     // MARK: Delimiter
-    static let delimiter = "/|#AMR"
+    static let delimiter = "/|#Stego"
 }

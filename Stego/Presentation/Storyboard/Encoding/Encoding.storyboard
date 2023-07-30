@@ -175,6 +175,7 @@
                     </view>
                     <connections>
                         <outlet property="coverImageView" destination="dGw-uH-aGC" id="2ob-p3-ujR"/>
+                        <outlet property="secretImageStack" destination="ElR-Tl-TBG" id="dbn-7u-gul"/>
                         <outlet property="secretImageView" destination="vuW-zT-iRy" id="SKA-rf-rQ1"/>
                         <outlet property="secretTextView" destination="umJ-yk-njs" id="vSH-0f-2bY"/>
                         <outlet property="shadowedView" destination="Zd8-RR-YCh" id="wP0-Zz-0ED"/>

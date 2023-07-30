@@ -51,7 +51,7 @@ class MainVC: UIViewController {
     
     private func showSecretTypeSheet(to process: ProcessType) {
         let alert = UIAlertController(title: "Secret Type",
-                                      message: "Please select secret type you want to process.",
+                                      message: "Please select secret type",
                                       preferredStyle: .actionSheet)
         let text = UIAlertAction(title: "Text",
                                  style: .default) { _ in

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		66CAC6D22009460D52F7E863 /* Pods_Stegno.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E96CC629ABCC51337C93BC93 /* Pods_Stegno.framework */; };
+		F06E90912A7563E200F020EB /* SecretType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06E90902A7563E200F020EB /* SecretType.swift */; };
 		F06EBFA82A3F5AA40032DADE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06EBFA72A3F5AA40032DADE /* AppDelegate.swift */; };
 		F06EBFAA2A3F5AA40032DADE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06EBFA92A3F5AA40032DADE /* SceneDelegate.swift */; };
 		F06EBFAC2A3F5AA40032DADE /* MainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06EBFAB2A3F5AA40032DADE /* MainVC.swift */; };
@@ -34,12 +35,15 @@
 		F07A8ED32A40C065008768CF /* LottieCoveredNVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07A8ED22A40C065008768CF /* LottieCoveredNVC.swift */; };
 		F07A8ED92A40C08A008768CF /* LoadingAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07A8ED82A40C08A008768CF /* LoadingAnimation.swift */; };
 		F07A8EDB2A40C0DC008768CF /* binary-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = F07A8EDA2A40C0DC008768CF /* binary-loading.json */; };
+		F08369082A76965B00B78209 /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08369072A76965B00B78209 /* Assets.swift */; };
+		F083690A2A76A1F300B78209 /* UIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08369092A76A1F300B78209 /* UIImageExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		7DF2520A73FCAEE040AFC4DE /* Pods-Stegno.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Stegno.debug.xcconfig"; path = "Target Support Files/Pods-Stegno/Pods-Stegno.debug.xcconfig"; sourceTree = "<group>"; };
 		B8838DB36B1EFB9AD4B945EF /* Pods-Stegno.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Stegno.release.xcconfig"; path = "Target Support Files/Pods-Stegno/Pods-Stegno.release.xcconfig"; sourceTree = "<group>"; };
 		E96CC629ABCC51337C93BC93 /* Pods_Stegno.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Stegno.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F06E90902A7563E200F020EB /* SecretType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretType.swift; sourceTree = "<group>"; };
 		F06EBFA42A3F5AA40032DADE /* Stego.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stego.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F06EBFA72A3F5AA40032DADE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F06EBFA92A3F5AA40032DADE /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -68,6 +72,8 @@
 		F07A8ED22A40C065008768CF /* LottieCoveredNVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LottieCoveredNVC.swift; sourceTree = "<group>"; };
 		F07A8ED82A40C08A008768CF /* LoadingAnimation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingAnimation.swift; sourceTree = "<group>"; };
 		F07A8EDA2A40C0DC008768CF /* binary-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "binary-loading.json"; sourceTree = "<group>"; };
+		F08369072A76965B00B78209 /* Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
+		F08369092A76A1F300B78209 /* UIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +94,14 @@
 				E96CC629ABCC51337C93BC93 /* Pods_Stegno.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F06E908F2A7563CF00F020EB /* SecretType */ = {
+			isa = PBXGroup;
+			children = (
+				F06E90902A7563E200F020EB /* SecretType.swift */,
+			);
+			path = SecretType;
 			sourceTree = "<group>";
 		};
 		F06EBF9B2A3F5AA40032DADE = {
@@ -114,7 +128,7 @@
 				F06EBFF02A3F7F510032DADE /* Model */,
 				F06EBFBB2A3F5AAC0032DADE /* Delegate */,
 				F06EBFC52A3F5BDA0032DADE /* Utils */,
-				F06EBFBD2A3F5AD10032DADE /* View&Controller */,
+				F06EBFBD2A3F5AD10032DADE /* Presentation */,
 				F06EBFB02A3F5AA60032DADE /* Assets.xcassets */,
 				F06EBFB52A3F5AA60032DADE /* Info.plist */,
 			);
@@ -139,14 +153,14 @@
 			path = Main;
 			sourceTree = "<group>";
 		};
-		F06EBFBD2A3F5AD10032DADE /* View&Controller */ = {
+		F06EBFBD2A3F5AD10032DADE /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
 				F06EBFC12A3F5B6F0032DADE /* CustomComponents */,
 				F06EBFBF2A3F5AE80032DADE /* Storyboard */,
 				F06EBFBE2A3F5AE00032DADE /* LaunchScreen */,
 			);
-			path = "View&Controller";
+			path = Presentation;
 			sourceTree = "<group>";
 		};
 		F06EBFBE2A3F5AE00032DADE /* LaunchScreen */ = {
@@ -201,6 +215,8 @@
 		F06EBFC62A3F5BE10032DADE /* Constants */ = {
 			isa = PBXGroup;
 			children = (
+				F08369062A76964A00B78209 /* Assets */,
+				F06E908F2A7563CF00F020EB /* SecretType */,
 				F07A8ECC2A40591D008768CF /* PopupString */,
 				F06EBFE42A3F7B920032DADE /* Storyboard */,
 				F06EBFE12A3F7B470032DADE /* VCIdentifier */,
@@ -239,6 +255,7 @@
 				F06EBFED2A3F7F000032DADE /* StringExtension */,
 				F06EBFE72A3F7C9C0032DADE /* UIViewControllerExtension */,
 				F06EBFD12A3F67CA0032DADE /* UIViewExtension */,
+				F083690B2A76A53B00B78209 /* UIImageExtension */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -364,6 +381,22 @@
 				F07A8ED82A40C08A008768CF /* LoadingAnimation.swift */,
 			);
 			path = LoadingAnimation;
+			sourceTree = "<group>";
+		};
+		F08369062A76964A00B78209 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				F08369072A76965B00B78209 /* Assets.swift */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		F083690B2A76A53B00B78209 /* UIImageExtension */ = {
+			isa = PBXGroup;
+			children = (
+				F08369092A76A1F300B78209 /* UIImageExtension.swift */,
+			);
+			path = UIImageExtension;
 			sourceTree = "<group>";
 		};
 		FF66086D68E978CDD6270068 /* Pods */ = {
@@ -495,6 +528,7 @@
 			files = (
 				F06EBFF32A3F7F870032DADE /* PVDRange.swift in Sources */,
 				F06EBFC42A3F5B7B0032DADE /* AdjustableButton.swift in Sources */,
+				F083690A2A76A1F300B78209 /* UIImageExtension.swift in Sources */,
 				F06EBFEC2A3F7DB50032DADE /* RoundedIV.swift in Sources */,
 				F06EBFC92A3F5BF70032DADE /* AppConstants.swift in Sources */,
 				F06EBFCF2A3F67990032DADE /* RoundedView.swift in Sources */,
@@ -505,7 +539,9 @@
 				F06EBFAC2A3F5AA40032DADE /* MainVC.swift in Sources */,
 				F06EBFCC2A3F677C0032DADE /* ShadowedView.swift in Sources */,
 				F06EBFA82A3F5AA40032DADE /* AppDelegate.swift in Sources */,
+				F08369082A76965B00B78209 /* Assets.swift in Sources */,
 				F06EBFE02A3F6E270032DADE /* RoundedTextView.swift in Sources */,
+				F06E90912A7563E200F020EB /* SecretType.swift in Sources */,
 				F06EBFD82A3F6C020032DADE /* EncodingVC.swift in Sources */,
 				F06EBFE32A3F7B540032DADE /* VCIdentifier.swift in Sources */,
 				F07A8ED92A40C08A008768CF /* LoadingAnimation.swift in Sources */,

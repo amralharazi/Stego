@@ -21,6 +21,7 @@ enum PopupString {
     enum PopupType: String {
         case noImageToEncode = "Add an image to encode your secret into."
         case noSecretToEncode =  "Enter a secret to be encoded."
+        case noSecretImageToEncode =  "Enter a secret image to be encoded."
         case noImageToDecode = "Add an image to decode your secret."
     }
 }

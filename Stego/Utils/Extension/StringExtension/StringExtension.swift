@@ -8,13 +8,13 @@
 import Foundation
 
 extension String {
-    func pad(toSize: Int, rightDirection: Bool = true) -> String {
+    func pad(withZero: Bool = true, toSize: Int, rightDirection: Bool = true) -> String {
         var padded = self
         for _ in 0..<(toSize - self.count) {
             if rightDirection {
-                padded = padded + "0"
+                padded = padded + (withZero ? "0" : "1")
             } else {
-                padded = "0" + padded
+                padded = (withZero ? "0" : "1") + padded
             }
         }
         return padded
@@ -36,7 +36,4 @@ extension String {
         }
     }
     
-    func removeTrailingZeros() -> String {
-        return self.trimmingCharacters(in: CharacterSet(charactersIn: "0"))
-    }
 }

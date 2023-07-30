@@ -16,7 +16,7 @@ struct PVD {
         case r5
         case r6
         
-        var lowerLimit: Double {
+        var lowerLimit: Int {
             switch self {
             case .r1:
                 return 0
@@ -33,7 +33,7 @@ struct PVD {
             }
         }
         
-        var upperLimit: Double {
+        var upperLimit: Int {
             switch self {
             case .r1:
                 return 7
@@ -50,18 +50,18 @@ struct PVD {
             }
         }
         
-        var numberOfBits: Int {
+        var capacity: Int {
             switch self {
             case .r1, .r2:
-                return 8
+                return 3
             case .r3:
-                return 16
+                return 4
             case .r4:
-                return 32
+                return 5
             case .r5:
-                return 64
+                return 6
             case .r6:
-                return 128
+                return 7
             }
         }
     }
@@ -85,25 +85,28 @@ struct PVD {
         }
     }
     
-    static func satisfiesFOBCheck(for colors: (Int, Int)) -> Bool {
-        
-        let difference = colors.1 - colors.0
+    static func doesFallOffBoundary(block: (Int, Int)) -> Bool {
+        let difference = block.1 - block.0
         let pvdCase = PVD.getCase(for: abs(difference))
-        let m = pvdCase.upperLimit - Double(difference)
+        let m = Double(pvdCase.upperLimit - difference)
         
         let flooredHalfM = Int(floor(m/2))
         let ceiledHalfM = Int(ceil(m/2))
         
         let deltaColors: (Int, Int)
+        
         if difference % 2 == 0 {
-            deltaColors = (colors.0 - ceiledHalfM, colors.1 + flooredHalfM)
+            deltaColors = (block.0 - ceiledHalfM,
+                           block.1 + flooredHalfM)
         } else {
-            deltaColors = (colors.0 - flooredHalfM, colors.1 + ceiledHalfM)
+            deltaColors = (block.0 - flooredHalfM,
+                           block.1 + ceiledHalfM)
         }
         
-        if (0...255 ~= deltaColors.0) && (0...255 ~= deltaColors.1) {
-            return true
+        if (0...255 ~= deltaColors.0) &&
+            (0...255 ~= deltaColors.1) {
+            return false
         }
-        return false
+        return true
     }
 }

@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Please allow access to Photos to save encoded images.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow access to camera to encode secret into taken images.</string>
 	<key>UISupportedInterfaceOrientations</key>

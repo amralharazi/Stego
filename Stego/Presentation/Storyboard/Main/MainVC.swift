@@ -7,6 +7,10 @@
 
 import UIKit
 
+enum ProcessType {
+    case encode, decode
+}
+
 class MainVC: UIViewController {
     
     // MARK: Subviews
@@ -45,31 +49,66 @@ class MainVC: UIViewController {
         }
     }
     
+    private func showSecretTypeSheet(to process: ProcessType) {
+        let alert = UIAlertController(title: "Secret Type",
+                                      message: "Please select secret type you want to process.",
+                                      preferredStyle: .actionSheet)
+        let text = UIAlertAction(title: "Text",
+                                 style: .default) { _ in
+            self.goToScreenTo(process: process, secretType: .text)
+        }
+        
+        let Image = UIAlertAction(title: "Image",
+                                  style: .default) { _ in
+            self.goToScreenTo(process: process, secretType: .image)
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel",
+                                   style: .cancel)
+        
+        alert.addAction(text)
+        alert.addAction(Image)
+        alert.addAction(cancel)
+        DispatchQueue.main.async(execute: {
+            self.present(alert, animated: true)
+        })
+    }
+    
+    private func goToScreenTo(process: ProcessType, secretType: SecretType) {
+        if process == .encode {
+            goToEncodingScreenToProcess(secretType: secretType)
+        } else {
+            goToDecodingScreenToProcess(secretType: secretType)
+        }
+    }
+    
     // MARK: Selectors
     @objc func handleTap(gesture: UITapGestureRecognizer) {
         guard let tag = gesture.view?.tag else {return}
         
         if tag == 0 {
-            goToEecodingScreen()
+            showSecretTypeSheet(to: .encode)
         } else {
-            goToDecodingScreen()
+            showSecretTypeSheet(to: .decode)
         }
     }
 }
 
 // MARK: Navigations
 extension MainVC {
-    private func goToEecodingScreen(){
+    private func goToEncodingScreenToProcess(secretType: SecretType){
         let storyboard = UIStoryboard(name: Storyboard.Encoding.rawValue, bundle: nil)
         if let viewController = storyboard.instantiateViewController(withIdentifier: VCIdentifier.EncodingVC.rawValue) as? EncodingVC {
+            viewController.secretType = secretType
             viewController.modalPresentationStyle = .fullScreen
             navigationController?.pushViewController(viewController, animated: true)
         }
     }
     
-    private func goToDecodingScreen(){
+    private func goToDecodingScreenToProcess(secretType: SecretType){
         let storyboard = UIStoryboard(name: Storyboard.Decoding.rawValue, bundle: nil)
         if let viewController = storyboard.instantiateViewController(withIdentifier: VCIdentifier.DecodingVC.rawValue) as? DecodingVC {
+            viewController.secretType = secretType
             viewController.modalPresentationStyle = .fullScreen
             navigationController?.pushViewController(viewController, animated: true)
         }

@@ -1,50 +1,55 @@
 # Stego
-An advanced steganographic iOS app that utilizes the robust PVD (Pixel Value Differencing) method for secure encoding and decoding of strings.
-| Encoding        | Decoding |
-| --------------- | --------------- |
-| <img src="https://github.com/amralharazi/Stego/assets/55652499/a3b81c3d-04f3-477d-b642-78899fc9dc6e" width="240"> | <img src="https://github.com/amralharazi/Stego/assets/55652499/7f0c1558-7ab5-42c9-bd9b-40bd5b3a7f02" width="240"> |
+An advanced steganographic iOS app that utilizes the robust PVD (Pixel Value Differencing) method for secure encoding and decoding of texts and images.
+
+
+| Encoding Image        | Decoding Image | Encoding Text     | Decoding Text |
+| --------------- | --------------- |  --------------- | --------------- |
+| <img src="https://github.com/amralharazi/Stego/assets/55652499/0feba174-5faa-4699-b1fa-0347c382bb9e" width="240"> | <img src="https://github.com/amralharazi/Stego/assets/55652499/280a6a5c-4722-474c-8c7d-5f0cfa289b54" width="240"> | <img src="https://github.com/amralharazi/Stego/assets/55652499/dbcbd971-0da2-4756-a947-25ac57c4e1b6" width="240"> | <img src="https://github.com/amralharazi/Stego/assets/55652499/95638a4e-6b86-466a-a430-25f9a2396f41"  width="240">
 
 
 ## Algorithm
 #### Encoding:
-First, we obtain the CGImage of the image to be encoded. We then extract the data to create a CGContext, which enables us to draw the encoded image. Next, we initialize a UInt8 array that will store pixel values, with each pixel consisting of four elements: ARGB, representing alpha, red, green, and blue channels, respectively.
+First, we obtain the CGImage of the image to be encoded. We then extract the data to create a CGContext, which enables us to draw the encoded image. Next, we initialize an array of UInt8 that will store grayscale values of each pixel.
 
-Subsequently, we access each pixel using nested for loops, iterating over the height and width of the image, ensuring that all pixels are covered. Within the loop, we retrieve the index of the current pixel and extract the RGB color values.
+Subsequently, we access each pixel using two nested for loops, iterating over the height and width of the image, ensuring that all pixels are covered. Within the loop, we retrieve the index of the current and the next pixel to access their grayscale values.
 
-Before proceeding, we perform several checks. First, we verify whether the entire secret has been encoded. If not, we check if embedding into either of the color channel pairs (red-green or green-blue) will result in fall0off boundary, ensuring that no overflow or underflow occurs during the embedding process.
+Before proceeding, we perform several checks. First, we verify whether the entire secret has been encoded. If not, we check if embedding into the block (current pixel and the consecutive one) will result in fall-off boundary, ensuring that no overflow or underflow occurs during the embedding process.
 
 ``` Swift
-func satisfiesFOBCheck(for colors: (Int, Int)) -> Bool {
-        
-        let difference = colors.1 - colors.0
+static func doesFallOffBoundary(block: (Int, Int)) -> Bool {
+        let difference = block.1 - block.0
         let pvdCase = PVD.getCase(for: abs(difference))
-        let m = pvdCase.upperLimit - Double(difference)
+        let m = Double(pvdCase.upperLimit - difference)
         
         let flooredHalfM = Int(floor(m/2))
-        let ceiledHalfM = Int(ceil(m/2))
+        let ceiledHalfM  = Int(ceil(m/2))
         
         let deltaColors: (Int, Int)
+        
         if difference % 2 == 0 {
-            deltaColors = (colors.0 - ceiledHalfM, colors.1 + flooredHalfM)
+            deltaColors = (block.0 - ceiledHalfM,
+                           block.1 + flooredHalfM)
         } else {
-            deltaColors = (colors.0 - flooredHalfM, colors.1 + ceiledHalfM)
+            deltaColors = (block.0 - flooredHalfM,
+                           block.1 + ceiledHalfM)
         }
         
-        if (0...255 ~= deltaColors.0) && (0...255 ~= deltaColors.1) {
-            return true
+        if (0...255 ~= deltaColors.0) &&
+            (0...255 ~= deltaColors.1) {
+            return false
         }
-        return false
+        return true
     }
 ```
 
-If all conditions are satisfied, we proceed to calculate the stego colors for that particular pixel and substitute the original RGB values with the modified RGB values.
+If all conditions are satisfied, we proceed to calculate the stego colors for that block and substitute the original grayscale values with the modified stego-grayscale values.
 
 ```swift 
-func computeStegoColors(for colors: (Int, Int), secret: inout String) -> (Int, Int) {
-        let d = abs(colors.1 - colors.0)
+private func computeStegoColors(for block: (Int, Int), secret: inout String) -> (Int, Int) {
+        let difference = block.1 - block.0
         
-        let pvdCase = PVD.getCase(for: Int(d))
-        let capacity = Int(floor(log2(Double(pvdCase.upperLimit - pvdCase.lowerLimit + 1))))
+        let pvdCase = PVD.getCase(for: abs(difference))
+        let capacity = pvdCase.capacity
         
         var subSecret: String
         if  capacity <= secret.count {
@@ -54,24 +59,23 @@ func computeStegoColors(for colors: (Int, Int), secret: inout String) -> (Int, I
             subSecret = secret.pad(toSize: capacity)
             secret.removeAll()
         }
-        
+                
         guard let decimalSubSecret = Int(subSecret, radix: 2) else {
             showAlert(withTitle: PopupString.ErrorType.title.rawValue,
                       withMessage: PopupString.ErrorType.unexpectedError.rawValue)
             return (0,0) }
         
-        let deltaD = Int(pvdCase.lowerLimit) + decimalSubSecret
-        let m = Double(abs(deltaD - d))
+        let deltaDifference = (Int(pvdCase.lowerLimit) + decimalSubSecret) * (difference < 0 ? -1 : 1)
+        let m = Double(deltaDifference - difference)
         let flooredHalfM = Int(floor(m/2))
         let ceiledHalfM = Int(ceil(m/2))
         
-        if (colors.0 >= colors.1 && deltaD > d)
-            || (colors.0 < colors.1 && deltaD <= d) {
-            return (colors.0 + ceiledHalfM, colors.1 - flooredHalfM)
-        } else if (colors.0 < colors.1 && deltaD > d) {
-            return (colors.0 - flooredHalfM, colors.1 + ceiledHalfM)
+        if difference % 2 == 0 {
+            return (block.0 - ceiledHalfM,
+                    block.1 + flooredHalfM)
         } else {
-            return (colors.0 - ceiledHalfM, colors.1 + flooredHalfM)
+            return (block.0 - flooredHalfM,
+                    block.1 + ceiledHalfM)
         }
     }
 ```
@@ -79,8 +83,7 @@ func computeStegoColors(for colors: (Int, Int), secret: inout String) -> (Int, I
 Now, we can generate the stego image using the CGImage returned from context.makeImage(). This stego image can be exported by the user to the Files app for convenient sharing or storage.
 
 ``` swift 
-private func encode(secret: String, into image: UIImage){
-        
+    private func encode(secret: String, into image: UIImage){        
         var secret = secret
         
         guard let cgImage = image.cgImage else {
@@ -89,63 +92,64 @@ private func encode(secret: String, into image: UIImage){
             return
         }
         
-        let colorSpace       = CGColorSpaceCreateDeviceRGB()
+        let colorSpace       = CGColorSpaceCreateDeviceGray()
         let width            = cgImage.width
         let height           = cgImage.height
-        let bytesPerPixel    = 4
+        let bytesPerPixel    = 1
         let bitsPerComponent = 8
         let bytesPerRow      = bytesPerPixel * width
-        let bitmapInfo       = CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
+        let bitmapInfo       = CGImageAlphaInfo.none.rawValue
         var pixelData        = [UInt8](repeating: 0, count: bytesPerRow * height)
+        let maxPixel         = pixelData.count - 1
         
         guard let context = CGContext(data: &pixelData,
-                            width: width,
-                            height: height,
-                            bitsPerComponent: bitsPerComponent,
-                            bytesPerRow: bytesPerRow,
-                            space: colorSpace,
-                            bitmapInfo: bitmapInfo) else {
+                                      width: width,
+                                      height: height,
+                                      bitsPerComponent: bitsPerComponent,
+                                      bytesPerRow: bytesPerRow,
+                                      space: colorSpace,
+                                      bitmapInfo: bitmapInfo) else {
             showAlert(withTitle: PopupString.ErrorType.title.rawValue,
                       withMessage: PopupString.ErrorType.unexpectedError.rawValue)
             return
         }
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
         
-        DispatchQueue.global().async { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else {return}
             
-            for row in 0 ..< Int(height) {
-                for column in 0 ..< Int(width) {
-                    
-                    let index = (row * bytesPerRow) + (column * bytesPerPixel)
-                    
-                    let red   = Int(pixelData[index + 1])
-                    let green = Int(pixelData[index + 2])
-                    let blue  = Int(pixelData[index + 3])
-                    
-                    guard !secret.isEmpty,
-                          PVD.satisfiesFOBCheck(for: (red, green)),
-                          PVD.satisfiesFOBCheck(for: (green, blue)) else {continue}
-                    
-                    //Compute first block
-                    let firstBlockStegoColors = self.computeStegoColors(for: (red, green), secret: &secret)
-                    
-                    //Compute second block
-                    let secondBlockStegoColors = self.computeStegoColors(for: (green, blue), secret: &secret)
-                    
-                    let modifiedGreen = (firstBlockStegoColors.1 + secondBlockStegoColors.0)/2
-                    let modifiedRed   = firstBlockStegoColors.0 - (firstBlockStegoColors.1 - modifiedGreen)
-                    let modifiedBlue  = secondBlockStegoColors.1 - (secondBlockStegoColors.0 - modifiedGreen)
-                    
-                    let stegoRed   = UInt8(exactly: modifiedRed) ?? 0
-                    let stegoBlue  = UInt8(exactly: modifiedBlue) ?? 0
-                    let stegoGreen = UInt8(exactly: modifiedGreen) ?? 0
-                    
-                    pixelData[index+1] = stegoRed
-                    pixelData[index+2] = stegoGreen
-                    pixelData[index+3] = stegoBlue
+        outerloop: for row in 0 ..< Int(height) {
+            for column in stride(from: 0, to: Int(width), by: 2) {
+                
+                let currentPixelIndex = (row * bytesPerRow) + column
+                let nextPixelIndex    = currentPixelIndex + 1
+                
+                guard nextPixelIndex <= maxPixel,
+                      !secret.isEmpty  else { break outerloop}
+                
+                let currentPixelGrayValue = Int(pixelData[currentPixelIndex])
+                let nextPixelGrayValue    = Int(pixelData[nextPixelIndex])
+                
+                guard !PVD.doesFallOffBoundary(block: (currentPixelGrayValue,
+                                                       nextPixelGrayValue)) else {continue}
+                
+                let stegoColors = computeStegoColors(for: (currentPixelGrayValue,
+                                                           nextPixelGrayValue),
+                                                     secret: &secret)
+                
+                let currentPixelStegoColor = UInt8(exactly: stegoColors.0) ?? 0
+                let nextPixelStegoColor    = UInt8(exactly: stegoColors.1) ?? 0
+                
+                pixelData[currentPixelIndex] = currentPixelStegoColor
+                pixelData[nextPixelIndex]    = nextPixelStegoColor
+                
+                if ((nextPixelIndex + 1) > maxPixel)
+                    && !secret.isEmpty {
+                    showAlert(withTitle: PopupString.ErrorType.title.rawValue,
+                              withMessage: PopupString.ErrorType.largeSecret.rawValue)
                 }
             }
+        }
             
             guard let modifiedCGImage = context.makeImage() else {
                 showAlert(withTitle: PopupString.ErrorType.title.rawValue,
@@ -153,10 +157,13 @@ private func encode(secret: String, into image: UIImage){
                 return
             }
             
-            let stegoImage = UIImage(cgImage: modifiedCGImage)
-            
+            let stegoImage = UIImage(cgImage: modifiedCGImage,
+                                     scale: image.scale,
+                                     orientation: image.imageOrientation)
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
+                self.hideLottieAnimation()
+                self.coverImageView.image = stegoImage
                 self.save(image: stegoImage)
             }
         }
@@ -164,47 +171,52 @@ private func encode(secret: String, into image: UIImage){
 ```
 
 #### Decoding
-Similar to the encoding process, we start by obtaining the CGImage of the image to be decoded. From there, we extract image data to create a CGContext, enabling us to access its pixels. Additionally, we create a UInt8 array to store the pixel values.
+Similar to the encoding process, we start by obtaining the CGImage of the image to be decoded. From there, we extract image data to create a CGContext, enabling us to access its pixels. Additionally, we create a UInt8 array to store the grayscale values.
 
 To store the decoded secret, we initialize an empty string variable called "secret." We then iterate over the pixels, checking for fall-off boundaries (FOB) in any of the pixel blocks. If no fall-off boundary is detected, we extract the binary subsecret from each block and append the returned string to the "secret" variable using the following code:
 
 ```Swift
-func getSubsecretFrom(colors: (Int, Int)) -> String {
-        let difference = abs(colors.1 - colors.0)
-        let pvdCase = PVD.getCase(for: Int(difference))
-        let blockCapacity = Int(floor(log2(Double(pvdCase.upperLimit - pvdCase.lowerLimit + 1))))
-        let subSecretDecimal = difference - Int(pvdCase.lowerLimit)
+private func getSubsecretFrom(colors: (Int, Int)) -> String {
+        let difference = colors.1 - colors.0
+        let pvdCase = PVD.getCase(for: abs(difference))
+        let blockCapacity = pvdCase.capacity
+        
+        let subSecretDecimal: Int
+        if difference >= 0 {
+            subSecretDecimal = difference - pvdCase.lowerLimit
+        } else {
+            subSecretDecimal = -difference - pvdCase.lowerLimit
+        }
+        
         var subSecretBinary = String(subSecretDecimal, radix: 2)
         
         if subSecretBinary.count < blockCapacity {
             subSecretBinary = subSecretBinary.pad(toSize: blockCapacity, rightDirection: false)
         }
-        
         return subSecretBinary
     }
 ```
-After each loop we check wether the secret has reach the delimiter, and each 8 bits are converted to their corresponding char and that gets appended to another var initialized in the controller called "secret":
+In each loop we check wether the secret contains the delimiter, if so, we terminate the decoding process. If the secret is a text, we show that on the screen, otherwise, the image is opned on a new controller from which it can be saved into the Files app:
 
 ``` Swift
-func hasReachedDelimiter(in secret: inout String) -> Bool {
-        let strideLength = 8
-        let count = secret.count
-        
-        for index in stride(from: self.secret.count*8, to: count, by: strideLength) {
-            let startIndex = secret.index(secret.startIndex, offsetBy: index)
-            if let endIndex = secret.index(startIndex, offsetBy: strideLength, limitedBy: secret.endIndex) {
-                let char = String(secret[startIndex..<endIndex]).binaryToString()
-                self.secret.append(char ?? "")
-            }
+private func terminateDecoding(with secret: String){
+        if secretType == .text {
+            self.secretTextView.text = convertBinaryStringToText(secret)
+            secretTextView.textColor = .black
+        } else if let imageData = convertBinaryStringToData(secret),
+                let image = UIImage(data: imageData) {
+                    save(image: image)
+        } else {
+            showAlert(withTitle: PopupString.ErrorType.title.rawValue,
+                      withMessage: PopupString.ErrorType.unexpectedError.rawValue)
         }
-        return self.secret.contains(AppConstants.delimiter)
     }
 ```
 
-If the condition returns true, the loop terminates, and we display the decoded string on the screen. However, if the loop reaches the end without finding the delimiter, we display an alert to notify the user that no secret was found.
+However, if the loop reaches the end without finding the delimiter, we display an alert to notify the user that no secret was found.
 
 ```swift 
-func decodeSecretFrom(image: UIImage) {
+private func decodeSecretFrom(image: UIImage) {        
         var secret = ""
         
         guard let stegoCGImage = image.cgImage else {
@@ -213,59 +225,59 @@ func decodeSecretFrom(image: UIImage) {
             return
         }
         
-        let colorSpace       = CGColorSpaceCreateDeviceRGB()
+        let colorSpace       = CGColorSpaceCreateDeviceGray()
         let width            = stegoCGImage.width
         let height           = stegoCGImage.height
-        let bytesPerPixel    = 4
+        let bytesPerPixel    = 1
         let bitsPerComponent = 8
         let bytesPerRow      = bytesPerPixel * width
-        let bitmapInfo       = CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
+        let bitmapInfo       = CGImageAlphaInfo.none.rawValue
         var pixelData        = [UInt8](repeating: 0, count: bytesPerRow * height)
+        let maxPixel         = pixelData.count - 1
         
         guard let context = CGContext(data: &pixelData,
-                            width: width,
-                            height: height,
-                            bitsPerComponent: bitsPerComponent,
-                            bytesPerRow: bytesPerRow,
-                            space: colorSpace,
-                            bitmapInfo: bitmapInfo) else {
+                                      width: width,
+                                      height: height,
+                                      bitsPerComponent: bitsPerComponent,
+                                      bytesPerRow: bytesPerRow,
+                                      space: colorSpace,
+                                      bitmapInfo: bitmapInfo) else {
             showAlert(withTitle: PopupString.ErrorType.title.rawValue,
                       withMessage: PopupString.ErrorType.unexpectedError.rawValue)
             return
         }
         context.draw(stegoCGImage, in: CGRect(x: 0, y: 0, width: width, height: height))
         
-        DispatchQueue.global().async { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else {return}
             
-            for row in 0 ..< Int(height) {
-                for column in 0 ..< Int(width) {
-                    let index = (row * bytesPerRow) + (column * bytesPerPixel)
-                    
-                    let red   = Int(pixelData[index + 1])
-                    let green = Int(pixelData[index + 2])
-                    let blue  = Int(pixelData[index + 3])
-                    
-                    guard PVD.satisfiesFOBCheck(for: (red, green)),
-                          PVD.satisfiesFOBCheck(for: (green, blue)) else {continue}
-                    
-                    //Get first subsecret
-                    let firstSubsecret = self.getSubsecretFrom(colors: (red, green))
-                    secret += firstSubsecret
-                    
-                    //Get second subsecret
-                    let secondSubsecret = self.getSubsecretFrom(colors: (green, blue))
-                    secret += secondSubsecret
-                    
-                    if hasReachedDelimiter(secret: &secret){
-                        DispatchQueue.main.async { [weak self] in
-                            guard let self = self else {return}
-                            self.terminateSearch()
-                        }
-                        return
+        outerloop: for row in 0 ..< Int(height) {
+            for column in stride(from: 0, to: Int(width), by: 2) {
+                
+                let currentPixelIndex = (row * bytesPerRow) + column
+                let nextPixelIndex    = currentPixelIndex + 1
+                
+                guard nextPixelIndex <= maxPixel else { break outerloop}
+                
+                let currentPixelGrayValue = Int(pixelData[currentPixelIndex])
+                let nextPixelGrayValue    = Int(pixelData[nextPixelIndex])
+                
+                guard !PVD.doesFallOffBoundary(block: (currentPixelGrayValue, nextPixelGrayValue)) else {continue}
+                
+                let subserect =  self.getSubsecretFrom(colors: (currentPixelGrayValue, nextPixelGrayValue))
+                secret += subserect
+                
+                if secret.contains(AppConstants.delimiter.binary) {
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else {return}
+                        let secret = secret.components(separatedBy: AppConstants.delimiter.binary).first!
+                        self.terminateDecoding(with: secret)
                     }
+                    return
                 }
             }
+        }
+            
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
                 self.showAlert(withTitle: PopupString.ErrorType.title.rawValue,
@@ -276,9 +288,8 @@ func decodeSecretFrom(image: UIImage) {
 ```
 ## Getting Started
 1. Make sure you have Xcode 14 or higher installed on your computer.
-2. To install thrid-part libraries, make sure Cocoapods is installed too.
-3. Download/clone Stego to a dicretory on your computer.
-4. Run the current active scheme.
+2. Download/clone Stego to a dicretory on your computer.
+3. Run the current active scheme.
 ## Usage
 You only need to have a photo and a string to get started. Upload the image you want to encode your secret into, then enter the secret. Boom! Now yo have the your secret encoded within the image. You can then export that to Files, and from there share that with other people.
 ## Limitations
@@ -296,12 +307,11 @@ You only need to have a photo and a string to get started. Upload the image you 
 * Delegate: AppDelegate and SceneDelegate files are saved here.
 * Utils: Constants, extensions, loading animation files are under this folder.
 * Model: PVD method file can be found here.
-* View&Controller: All views and their corresponding controllers are in this file. Each is in a different folder.
+* Presentation: All views and their corresponding controllers are in this file. Each is in a different folder.
 
 ## Dependencies
 Cocoapods is used to manage dependencies in this app. Integrated dependencies are:
 * lottie-ios
 * IQKeyboardManagerSwift
 ## References
-* Prasad, S. and Kumar Pal, A. An RGB colour image steganography scheme using overlapping block-based ... Available at: https://royalsocietypublishing.org/doi/10.1098/rsos.161066 (Accessed: 20 June 2023). 
 * Wu, D.-C. and Tsai, W.-H. (2003) A steganographic method for images by pixel-value differencing, Pattern Recognition Letters. Available at: https://www.sciencedirect.com/science/article/abs/pii/S0167865502004026 (Accessed: 20 June 2023).
